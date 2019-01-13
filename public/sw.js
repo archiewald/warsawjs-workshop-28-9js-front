@@ -1,7 +1,16 @@
 /* eslint-disable no-restricted-globals */
 
 const CACHE_NAME = "app";
-const VERSION = "14";
+const VERSION = "17";
+
+caches.keys().then(keys => {
+  keys.forEach(key => {
+    if (!(key === "storage-" + VERSION || key === "storage-posts")) {
+      console.log({ VERSION }, "to be deleted");
+      caches.delete(key);
+    }
+  });
+});
 
 self.addEventListener("install", () => {
   caches.open(CACHE_NAME).then(cache => {
