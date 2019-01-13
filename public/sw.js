@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 
 const CACHE_NAME = "app";
-const VERSION = "17";
+const VERSION = "18";
 
 caches.keys().then(keys => {
   keys.forEach(key => {

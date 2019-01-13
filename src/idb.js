@@ -5,4 +5,6 @@ export const dbPromise = idb.open("9JS", 1, upgradeDB => {
 
   db.createIndex("by-date", "createdAt");
   db.createIndex("by-likes", "likes");
+
+  upgradeDB.createObjectStore("posts-fav", { keyPath: "id" });
 });
