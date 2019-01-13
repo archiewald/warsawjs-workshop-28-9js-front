@@ -7,16 +7,8 @@ class PostList extends Component {
 
   state = {
     posts: [],
-    notNewPost: true,
-    noPostCaches: false,
-    sort: "by-date"
-  };
-
-  toggleOrder = () => {
-    this.setState(prevState => ({
-      ...prevState,
-      sort: prevState.sort === "by-date" ? "by-likes" : "by-date"
-    }));
+    order: "by-date",
+    noPostCaches: false
   };
 
   componentDidMount() {
@@ -41,9 +33,16 @@ class PostList extends Component {
       .then(res => {
         dbPromise
           .then(db => {
+            if (res.length === 0) {
+              this.setState({
+                ...this.state,
+                noPostCaches: true
+              });
+              throw Error("not more posts");
+            }
+
             var tx = db.transaction("posts", "readwrite");
             res.map(item => {
-              console.log({ item });
               tx.objectStore("posts").put({
                 id: item.id,
                 createdAt: item.createdAt,
@@ -63,18 +62,41 @@ class PostList extends Component {
   readContentFromIdb = () => {
     dbPromise
       .then(db => {
+        //all
         return db
           .transaction("posts")
           .objectStore("posts")
-          .index(this.state.sort)
+          .index(this.state.order)
           .getAll();
       })
       .then(item => {
+        if (this.state.order === "by-likes") item.reverse();
+
         this.setState({
           ...this.state,
           posts: item
         });
       });
+  };
+
+  changeOrder = () => {
+    if (this.state.order === "by-date") {
+      this.setState(
+        {
+          ...this.state,
+          order: "by-likes"
+        },
+        () => this.readContentFromIdb()
+      );
+    } else {
+      this.setState(
+        {
+          ...this.state,
+          order: "by-date"
+        },
+        () => this.readContentFromIdb()
+      );
+    }
   };
 
   render() {
@@ -83,13 +105,24 @@ class PostList extends Component {
         <h1>Home page list</h1>
         <h4 className={"subheader"}>Order by</h4>
         <div className="orderOption">
-          <button onClick={this.toggleOrder}>{this.state.sort}</button>
+          <button
+            onClick={this.changeOrder}
+            className={this.state.order === "by-date" ? "active" : ""}
+          >
+            By date
+          </button>
+          <button
+            onClick={this.changeOrder}
+            className={this.state.order === "by-likes" ? "active" : ""}
+          >
+            By likes
+          </button>
         </div>
         {this.state.posts.length ? (
           this.state.posts.map(post => (
             <PostView
               reloadIndexDb={this.readContentFromIdb}
-              listFavouriteId={this.state.listFavouriteId}
+              listFacouriteId={this.state.listFacouriteId}
               post={post}
               key={post.id}
             />
@@ -100,13 +133,13 @@ class PostList extends Component {
         {!this.state.noPostCaches ? (
           <div>
             <button
-              disabled={this.state.sort === "by-likes"}
+              disabled={this.state.order === "by-likes"}
               className={"loadMore"}
               onClick={() => {
                 this.loadPage();
               }}
             >
-              {this.state.sort === "by-likes"
+              {this.state.order === "by-likes"
                 ? "To load more content you have to change order"
                 : "Load more funny content"}
             </button>
