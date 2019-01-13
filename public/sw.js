@@ -10,4 +10,11 @@ self.addEventListener("fetch", event => {
       fetch(`/image/nointernet.gif`).then(response => response)
     );
   }
+
+  caches.open("name-cache").then(cache => {
+    var fileName = "/image/nointernet.gif";
+    fetch(fileName).then(response => {
+      cache.put(fileName, response.clone());
+    });
+  });
 });
