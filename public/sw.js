@@ -1,22 +1,32 @@
 /* eslint-disable no-restricted-globals */
 
+const CACHE_NAME = "app";
+const VERSION = "14";
+
 self.addEventListener("install", () => {
-  caches.open("app").then(cache => {
+  caches.open(CACHE_NAME).then(cache => {
     cache.addAll(["./"]);
   });
 });
 
 self.addEventListener("fetch", event => {
-  //   if (
-  //     event.request.url.endsWith(".jpg") ||
-  //     event.request.url.endsWith(".jpeg") ||
-  //     event.request.url.endsWith(".gif") ||
-  //     event.request.url.endsWith(".png")
-  //   ) {
-  //     event.respondWith(
-  //       fetch(`/image/nointernet.gif`).then(response => response)
-  //     );
-  //   }
+  event.respondWith(
+    caches.open("storage-" + VERSION).then(cache =>
+      cache.match(event.request).then(res => {
+        return (
+          res ||
+          fetch(event.request).then(response => {
+            cache.put(event.request, response.clone());
+            return response;
+          })
+        );
+      })
+    )
+  );
+});
 
-  event.respondWith(caches.open("app").then(cache => cache.match("./")));
+self.addEventListener("message", event => {
+  if (event.data.action === "skipWaiting") {
+    self.skipWaiting();
+  }
 });

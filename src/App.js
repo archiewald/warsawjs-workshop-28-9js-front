@@ -7,7 +7,8 @@ import "./App.css";
 
 class App extends Component {
   state = {
-    internetOnline: true
+    internetOnline: true,
+    newServiceWorker: false
   };
 
   componentDidMount() {
@@ -33,6 +34,13 @@ class App extends Component {
       navigator.serviceWorker
         .register("/sw.js")
         .then(sw => {
+          if (sw.waiting) {
+            this.newWorker = sw.waiting;
+            console.log("waiting for new SW");
+            this.setState({
+              newServiceWorker: true
+            });
+          }
           console.log("SW registered");
           console.log({ sw });
         })
@@ -46,10 +54,20 @@ class App extends Component {
     return (
       <div className="App">
         <div id="warnings">
-          {!this.state.internetOnline ? (
+          {this.state.newServiceWorker && (
+            <div id={"update_warning"}>
+              <button
+                onClick={() => {
+                  this.newWorker.postMessage({ action: "skipWaiting" });
+                  window.location.reload();
+                }}
+              >
+                New service
+              </button>
+            </div>
+          )}
+          {!this.state.internetOnline && (
             <div id={"internet_warning"}>You haven't got connection</div>
-          ) : (
-            ""
           )}
         </div>
         <BrowserRouter>
