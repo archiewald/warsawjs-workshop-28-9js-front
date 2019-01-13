@@ -30,6 +30,11 @@ class App extends Component {
       });
     });
 
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault();
+      window.promptWindow = e;
+    });
+
     // if (navigator.serviceWorker) {
     //   navigator.serviceWorker
     //     .register("/sw.js")
