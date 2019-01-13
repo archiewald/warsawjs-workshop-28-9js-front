@@ -30,24 +30,24 @@ class App extends Component {
       });
     });
 
-    if (navigator.serviceWorker) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then(sw => {
-          if (sw.waiting) {
-            this.newWorker = sw.waiting;
-            console.log("waiting for new SW");
-            this.setState({
-              newServiceWorker: true
-            });
-          }
-          console.log("SW registered");
-          console.log({ sw });
-        })
-        .catch(() => {
-          console.log("error");
-        });
-    }
+    // if (navigator.serviceWorker) {
+    //   navigator.serviceWorker
+    //     .register("/sw.js")
+    //     .then(sw => {
+    //       if (sw.waiting) {
+    //         this.newWorker = sw.waiting;
+    //         console.log("waiting for new SW");
+    //         this.setState({
+    //           newServiceWorker: true
+    //         });
+    //       }
+    //       console.log("SW registered");
+    //       console.log({ sw });
+    //     })
+    //     .catch(() => {
+    //       console.log("error");
+    //     });
+    // }
   }
 
   render() {
